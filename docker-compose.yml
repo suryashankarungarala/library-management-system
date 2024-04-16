@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  flaskapp:
+    image: suryashankar598/flaskappnew1:v1
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql  # Use the service name as the hostname for MySQL
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: lms
+    networks:
+      - my_network
+
+  mysql:
+    image: mysql:latest 
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lms
+    ports:
+      - "3306:3306"    
+    networks:
+      - my_network
+
+
+
+
+networks:
+  my_network:
+    driver: bridge
