@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql
+  namespace: roboshop
+data:
+  MYSQL_HOST: "mysql"
+  #MYSQL_USER: "root"
+  MYSQL_PASSWORD: "root"
+  MYSQL_DATABASE: "lms"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql
+  namespace: roboshop
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: cm9vdA==
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: roboshop
+  labels: # these labels are deployment labels
+    app: mysql
+    project: roboshop
+    tier: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # these labels are used to find the pods
+      app: mysql
+      project: roboshop
+      tier: db
+  template:
+    metadata:
+      labels: # these labels are pod labels
+        app: mysql
+        project: roboshop
+        tier: db
+    spec:
+      containers:
+      - name: mysql
+        image: suryashankar598/mysql:latest
+        #imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: mysql
+        - secretRef:
+            name: mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: roboshop
+spec:
+  selector:
+    app: mysql
+    project: roboshop
+    tier: db
+  ports:
+  - protocol: TCP
+    port: 3306 #service-port
+    targetPort: 3306 #container-port
